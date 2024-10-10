@@ -1,77 +1,79 @@
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 8580;
 
-app.use(express.urlencoded({ extended: true }));
-
-app.get('/', (req, res) => {
-    res.send(`
-        <form method="get" action="/submit">
+function composeForm(values, errors) {
+    return `
+    ${errors ? 'Исправьте ошибки, пожалуйста.' : ''}
+    <form method="get" action="/submit">
+            <span> ${errors?.name || ''}</span>
+            <br>
             <label for="name">Имя пользователя:</label>
-            <input id="name" name="name" required>
+            <input tipe="text" name="name" value="${removeHTML(values.name)}">
+            <br>
+            <span> ${errors?.age || ''}</span>
             <br>
             <label for="age">Возраст:</label>
-            <input type="number" id="age" name="age" required>
+            <input type="number" name="age" value="${values.age}">
             <br>
             <input type="submit" value="Отправить">
-        </form>
-    `);
+        </form>`
+
+}
+
+function successForm(values) {
+    return ` Добро пожаловать, ${removeHTML(values.name)}! Ваш возраст ${values.age}!`
+}
+
+app.get('/', (req, res) => {
+    res.send(composeForm({ name: '', age: ''}, null));
 });
 
 app.get('/submit', (req, res) => {
-
-   console.log(req.query);
-console.log(req.body);
-
-   let name = escapeHTML(req.query.name);
-   let age = parseInt(req.query.age);
-
-   console.log(name, age);
-
-
-    // Серверная валидация
-    if ( unValidateText(name) || age < 0) {
-        res.status(400).send(`
-         <h1>Введены некорректные данные</h1>
-         <form method="get" action="/submit">
-             <label for="name">Имя пользователя:</label>
-             <input id="name" name="name" value="${name}" required>
-             <br>
-             <label for="age">Возраст:</label>
-             <input type="number" id="age" name="age" value="${age}" required>
-             <br>
-             <input type="submit" value="Отправить">
-         </form>
-     `);
-   } else {
-        // Если валидация успешна
-        res.send(`<h1>Добрый день, ${name}! Вам ${age} лет.</h1>`);
+    let errors = [];
+    let errorsFlag = false;
+    if (!req.query.name) {
+        errors.name = 'Имя пользователя не может быть пустым';
+        errorsFlag = true;
     }
-
+    if (unValidateText(req.query.name)) {
+        errors.name = 'Имя пользователя может содержать только буквы';
+        errorsFlag = true;
+    }
+    if (!req.query.age) {
+        errors.age ='Возраст пользователя не может быть пустым';
+        errorsFlag = true;
+    }
+    if (errorsFlag) {
+        res.send(composeForm(req.query, errors));
+    } else {
+        res.send(successForm(req.query));
+    }
+    
 });
 
 app.listen(port, () => {
     console.log(`Сервер запущен на порту ${port}`);
 });
 
-function escapeHTML(text) {
-   if ( !text )
-       return text;
-   text=text.toString()
-       .split("&").join("&amp;")
-       .split("<").join("&lt;")
-       .split(">").join("&gt;")
-       .split('"').join("&quot;")
-       .split("'").join("&#039;");
-   return text;
+function removeHTML(text) {
+    if (!text)
+        return text;
+    text = text.toString()
+        .split("&").join("")
+        .split("<").join("")
+        .split(">").join("")
+        .split('"').join("")
+        .split("'").join("");
+    return text;
 }
 
-function unValidateText (text) {
+function unValidateText(text) {
     const chars = Array.from(text);
-    
+
     for (let char of chars) {
-        if ( !/[a-zA-Zа-яА-Я]/.test(char) ) {
-            return true; 
-        } 
+        if (!/[a-zA-Zа-яА-Я]/.test(char)) {
+            return true;
+        }
     }
 }
