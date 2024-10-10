@@ -6,15 +6,13 @@ function composeForm(values, errors) {
     return `
     ${errors ? 'Исправьте ошибки, пожалуйста.' : ''}
     <form method="get" action="/submit">
-            <span> ${errors?.name || ''}</span>
+            <span> ${errors ? errors.name : ''}</span>
             <br>
             <label for="name">Имя пользователя:</label>
             <input tipe="text" name="name" value="${removeHTML(values.name)}">
             <br>
-            <span> ${errors?.age || ''}</span>
-            <br>
             <label for="age">Возраст:</label>
-            <input type="number" name="age" value="${values.age}">
+            <input type="number" name="age" value="${values.age}" required>
             <br>
             <input type="submit" value="Отправить">
         </form>`
@@ -26,7 +24,7 @@ function successForm(values) {
 }
 
 app.get('/', (req, res) => {
-    res.send(composeForm({ name: '', age: ''}, null));
+    res.send(composeForm({ name: '', age: '' }, null));
 });
 
 app.get('/submit', (req, res) => {
@@ -38,10 +36,6 @@ app.get('/submit', (req, res) => {
     }
     if (unValidateText(req.query.name)) {
         errors.name = 'Имя пользователя может содержать только буквы';
-        errorsFlag = true;
-    }
-    if (!req.query.age) {
-        errors.age ='Возраст пользователя не может быть пустым';
         errorsFlag = true;
     }
     if (errorsFlag) {
