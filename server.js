@@ -1,9 +1,17 @@
 const express = require('express');
+const { engine } = require('express-handlebars');
+const path = require('path');
+
+
 const app = express();
 const port = 8580;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.engine('handlebars', engine());
+app.set('view engine', 'handlebars');
+app.set('views', path.join(__dirname, 'views'));
 
 //Функция компонирования формы
 function composeForm(values, errors) {
@@ -23,10 +31,7 @@ function composeForm(values, errors) {
 
 }
 
-//Функция обработки успешного запроса
-function successForm(values) {
-    return ` Добро пожаловать, ${removeHTML(values.name)}! Ваш возраст ${values.age}!`
-}
+
 
 //Исходная страница
 app.get('/', (req, res) => {
@@ -35,16 +40,16 @@ app.get('/', (req, res) => {
 
 //Обработчик GET-запроса
 app.get('/success', (req, res) => {
-    console.log(req.query);
-    
-    res.send(successForm(req.query));
+    res.render('success_form', { 
+        name: req.query.name, 
+        age: req.query.age });
 });
 
 //Обработчик формы
 app.post('/submit', (req, res) => {
     let errors = [];
     let errorsFlag = false;
-    console.log(req.body);
+
     
     if (!req.body.name) {
         errors.name = 'Имя пользователя не может быть пустым';
