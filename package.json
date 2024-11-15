@@ -1,7 +1,6 @@
 {
   "name": "form-with-validation",
   "version": "1.0.0",
-  "description": "",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,8 +10,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/express-handlebars": "^5.3.1",
     "express": "^4.21.0",
-    "express-handlebars": "^8.0.1",
-    "handlebars": "^4.7.8"
-  }
+    "express-handlebars": "^5.3.1",
+    "handlebars": "^4.7.8",
+    "path": "^0.12.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puffin-23/Homework_1_form_with_validation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/puffin-23/Homework_1_form_with_validation/issues"
+  },
+  "homepage": "https://github.com/puffin-23/Homework_1_form_with_validation#readme",
+  "description": ""
 }
